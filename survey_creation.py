@@ -17,7 +17,7 @@ headers = {
 data = {"SurveyName": "My New Survey",
         "Language": "EN",
         "ProjectCategory": "CORE",
-        "Published": True}
+        }
 
 response = requests.post(baseUrl, json=data, headers=headers)
 print(response.text)
