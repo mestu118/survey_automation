@@ -9,7 +9,7 @@ baseUrl = "https://{0}.qualtrics.com/API/v3/surveys/{1}".format(
     dataCenter, surveyId)
 
 data = {
-  "isActive": True
+  "isActive": False
 }
 
 headers = {
