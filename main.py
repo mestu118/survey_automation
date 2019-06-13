@@ -61,26 +61,6 @@ def activate_survey(dataCenter, apiToken):
 
 	# https://nyu.qualtrics.com/jfe/form/SV_5jyf8FFOv7qK0Qt
 
-def publish_survey(dataCenter, surveyId, apiToken):
-	surveyId = "SV_5jyf8FFOv7qK0Qt"
-	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions/{1}/versions"\
-														.format(dataCenter, surveyId)
-
-	data = {
-	  "Description": "2018 New Survey Version",
-	  "Published": True
-	}
-
-	headers = {
-	   'accept': "application/json",
-	   'content-type': "application/json",
-	   "x-api-token": apiToken,
-	}
-
-	response = requests.post(baseUrl, json=data, headers=headers)
-
-	print(response.text)
-
 def add_question(dataCenter, surveyId, apiToken):
 
 	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions/{1}/questions"\
@@ -127,17 +107,33 @@ def add_question(dataCenter, surveyId, apiToken):
 
 	print(response.text)
 
+def publish_survey(dataCenter, surveyId, apiToken):
+	surveyId = "SV_5jyf8FFOv7qK0Qt"
+	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions/{1}/versions"\
+														.format(dataCenter, surveyId)
+
+	data = {
+	  "Description": "2018 New Survey Version",
+	  "Published": True
+	}
+
+	headers = {
+	   'accept': "application/json",
+	   'content-type': "application/json",
+	   "x-api-token": apiToken,
+	}
+
+	response = requests.post(baseUrl, json=data, headers=headers)
+
+	print(response.text)
+
 def upload_image(dataCenter, apiToken):
 
-	baseUrl = "https://{0}.qualtrics.com/API/v3//libraries/test/graphics"\
-	.format(dataCenter)
-
-	data =  "file=@Images/AF-203/CFD-AF-203-077-N.jpg;filename=Testing;type=image/jpeg"
-	data = {'file': 'Images/AF-203/CFD-AF-203-077-N.jpg'}
+	baseUrl = "https://{0}.qualtrics.com/API/v3/libraries/UR_2oCfkV4WwzhNcih/graphics".format(dataCenter)
+	data = {'file': ('Testing',open('Images/AF-203/CFD-AF-203-077-N.jpg','rb'), 'image/jpeg')}
+ 
 	headers = {
-   "x-api-token": apiToken,
-
-	}
+	"x-api-token": apiToken}
 
 	response = requests.post(baseUrl, headers=headers, files=data)
 
