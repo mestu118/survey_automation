@@ -1,8 +1,10 @@
 import os
 import requests
-from credentials import *
 import sys
 import json
+from credentials import *
+
+#Note: apiToken & dataCenter imported from credentials 
 
 
 def get_survey_def(apiToken, dataCenter, surveyId):
@@ -130,7 +132,7 @@ def publish_survey(dataCenter, surveyId, apiToken):
 def upload_image(dataCenter, apiToken):
 
 	baseUrl = "https://{0}.qualtrics.com/API/v3/libraries/UR_2oCfkV4WwzhNcih/graphics".format(dataCenter)
-	data = {'file': ('Testing',open('Images/AF-203/CFD-AF-203-077-N.jpg','rb'), 'image/jpeg')}
+	data = {'file': ('Testing',open('Images/AF-203/*.jpg','rb'), 'image/jpeg')}
  
 	headers = {
 	"x-api-token": apiToken}
@@ -139,10 +141,14 @@ def upload_image(dataCenter, apiToken):
 
 	print(response.text)
 
+def upload_all_images(dataCenter, apiToken):
+	pass
 
 if __name__ == '__main__':
 	# surveyID = survey_creation(apiToken, apiToken)
-	# add_question(dataCenter, 'SV_2aGKULkZOO41bb7', apiToken)
+	# add_question(dataCenter, 'SV_2aGKULkZOO41bb7', apiToken)ls
+	for f in os.listdir('Images'):
+		print(os.listdir('Images/' + f))
 	upload_image(dataCenter, apiToken)
 
 
