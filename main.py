@@ -24,8 +24,6 @@ def get_survey_def(APITOKEN, DATACENTER, surveyId):
 
 	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions/{1}"\
 												.format(DATACENTER, surveyId)
-
-
 	response = requests.get(baseUrl, headers=getGetHeaders())
 	getValues(reponse)
 
