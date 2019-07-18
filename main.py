@@ -13,9 +13,7 @@ import sys
 import json
 
 
-# If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-#Note: apiToken & dataCenter imported from credentials 
 
 def get_survey_def(apiToken, dataCenter, surveyId):
 	# Setting user Parameters
@@ -131,13 +129,11 @@ def format_survey(apiToken, dataCenter, surveyId):
 	print(response.text)
 
 def activate_survey(apiToken, dataCenter, surveyId):
-	surveyId = "SV_5jyf8FFOv7qK0Qt"
-
 	baseUrl = "https://{0}.qualtrics.com/API/v3/surveys/{1}"\
 								.format(dataCenter, surveyId)
 
 	data = {
-	  "isActive": False
+	  "isActive": True
 	}
 
 	headers = {
@@ -147,11 +143,9 @@ def activate_survey(apiToken, dataCenter, surveyId):
 	}
 
 	response = requests.put(baseUrl, json=data, headers=headers)
+	values = json.loads(response.text)
 
-	print(response.text)
-
-
-	# https://nyu.qualtrics.com/jfe/form/SV_5jyf8FFOv7qK0Qt
+	print(values)
 
 def add_image(apiToken, dataCenter, surveyId, image_id):
 
@@ -407,17 +401,6 @@ def update_flow(dataCenter, apiToken, surveyId, flows, blocks, defaultId):
 			"FlowID" : flow
 			})
 
-	# temp.append({
-	# 	"Type": "EndSurvey",
- #         "FlowID": "FL_7"
-	# 	})
-
-	# temp.append({
-	# 	"Type": "Block",
- #               "ID": defaultId,
- #               "FlowID": "FL_2"
-	# 	})
-
 	data = {"Flow" : temp,
 	"FlowID": "FL_1",
     "Properties": {
@@ -491,22 +474,15 @@ if __name__ == '__main__':
 			print("updating block")
 			update_block(dataCenter, apiToken, surveyId, blockID, questionIDs)
 			counter += 1
-		if counter == 4:
+		if counter == 3:
 			break
 
 	update_flow(dataCenter, apiToken, surveyId, flows, blocks, defaultBlock)
 	publish_survey(dataCenter, apiToken, surveyId)
-
-
-
-	# survey_creation(dataCenter, apiToken)
-	# add_image(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
-	# add_question(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
-	# publish_survey(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
-	# activate_survey(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
-	# surveyId = 'SV_5BJtHuACxYZaEwR'
-	print(surveyId)
-	get_survey_def(apiToken, dataCenter, surveyId)
+	activate_survey(apiToken, dataCenter, surveyId)
+	print("https://nyu.qualtrics.com/jfe/form/{}".format(surveyId))
+	# print(surveyId)
+	# get_survey_def(apiToken, dataCenter, surveyId)
 
 
 
