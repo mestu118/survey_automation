@@ -1,2 +1,2 @@
-apiToken = "API KEY" # Replace with Account API Token
-dataCenter = "nyu.ca1"
+APITOKEN = "" # Replace with Account API Token
+DATACENTER = "nyu.ca1"
