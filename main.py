@@ -1,10 +1,20 @@
+from __future__ import print_function
+from credentials import *
+from write_spreadsheet import *
+from read_spreadsheet import * 
+import pickle
+import os.path
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
 import os
 import requests
 import sys
 import json
-from credentials import *
-from write_spreadsheet import * 
 
+
+# If modifying these scopes, delete the file token.pickle.
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 #Note: apiToken & dataCenter imported from credentials 
 
 def get_survey_def(apiToken, dataCenter, surveyId):
@@ -37,9 +47,11 @@ def survey_creation(dataCenter, apiToken):
 	        }
 
 	response = requests.post(baseUrl, json=data, headers=headers)
-	print(response.text)
+	values = json.loads(response.text)
+	print(values)
+	return values['result']['DefaultBlockID'], values['result']['SurveyID']
 
-def update_survey(apiToken, dataCenter, surveyId):
+def format_survey(apiToken, dataCenter, surveyId):
 
 	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions/{1}/options"\
 										.format(dataCenter, surveyId)
@@ -141,22 +153,23 @@ def activate_survey(apiToken, dataCenter, surveyId):
 
 	# https://nyu.qualtrics.com/jfe/form/SV_5jyf8FFOv7qK0Qt
 
-def add_image(apiToken, dataCenter, surveyId):
+def add_image(apiToken, dataCenter, surveyId, image_id):
 
 	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions/{1}/questions"\
 	.format(dataCenter, surveyId)
 	
 	data = {
-            "QuestionText": "Test",
+            "QuestionText": "<span style=\"font-size: 12pt; font-family: Calibri, Arial; color: rgb(0, 0, 0);\" data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;You are hiring an Apple specialist for a temporary position.\\nWhat hourly wage will you offer the following candidate?&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:14593,&quot;3&quot;:{&quot;1&quot;:0,&quot;3&quot;:1},&quot;11&quot;:4,&quot;14&quot;:[null,2,0],&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:12}\">You are hiring an Apple specialist for a temporary position.<br>What hourly wage will you offer the following candidate?</span>",
             "DefaultChoices": False,
             "DataExportTag": "Q1",
+            "QuestionID": "QID1",
             "QuestionType": "DB",
             "Selector": "GRB",
-            "SubSelector": "WOTXB",
+            "SubSelector": "WTXB",
             "Configuration": {
                "QuestionDescriptionOption": "UseText"
             },
-            "QuestionDescription": "Test",
+            "QuestionDescription": "You are hiring an Apple specialist for a temporary position. What hourly wage will you offer the...",
             "ChoiceOrder": [],
             "Validation": {
                "Settings": {
@@ -167,10 +180,9 @@ def add_image(apiToken, dataCenter, surveyId):
             "Language": [],
             "NextChoiceId": 4,
             "NextAnswerId": 1,
-            "Graphics": "IM_9ugk7ACap1CH7zn",
-            "GraphicsDescription": "Cfd af 201 060 n",
-            "QuestionID": "QID1",
-            "QuestionText_Unsafe": "Cfd af 201 060 n"
+            "Graphics": image_id,
+            "GraphicsDescription": "AF-201",
+            "QuestionText_Unsafe": "<span style=\"font-size: 12pt; font-family: Calibri, Arial; color: rgb(0, 0, 0);\" data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;You are hiring an Apple specialist for a temporary position.\\nWhat hourly wage will you offer the following candidate?&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:14593,&quot;3&quot;:{&quot;1&quot;:0,&quot;3&quot;:1},&quot;11&quot;:4,&quot;14&quot;:[null,2,0],&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:12}\">You are hiring an Apple specialist for a temporary position.<br>What hourly wage will you offer the following candidate?</span>"
          }
 
 	headers = {
@@ -180,8 +192,9 @@ def add_image(apiToken, dataCenter, surveyId):
 	}
 
 	response = requests.post(baseUrl, json=data, headers=headers)
-
+	values = json.loads(response.text)
 	print(response.text)
+	return values['result']['QuestionID']
 
 def add_question(apiToken, dataCenter, surveyId):
 
@@ -189,8 +202,8 @@ def add_question(apiToken, dataCenter, surveyId):
 	.format(dataCenter, surveyId)
 	
 	data = {
-		"QuestionText": "<span style=\"color: rgb(0, 0, 0); font-family: docs-Calibri; font-size: 16px; white-space: pre-wrap;\">Hourly Wage:</span>",
-            "DataExportTag": "Q1",
+		"QuestionText": "Hourly Wage:",
+            "DataExportTag": "Q2",
             "QuestionType": "MC",
             "Selector": "SAHR",
             "SubSelector": "TX",
@@ -209,25 +222,28 @@ def add_question(apiToken, dataCenter, surveyId):
                "3": {
                   "Display": "$17"
                },
-               "11": {
+               "4": {
+                  "Display": "$18"
+               },
+               "5": {
                   "Display": "$19"
                },
-               "13": {
+               "6": {
                   "Display": "$20"
                },
-               "14": {
+               "7": {
                   "Display": "$21"
                },
-               "15": {
+               "8": {
                   "Display": "$22"
                },
-               "16": {
+               "9": {
                   "Display": "$23"
                },
-               "17": {
+               "10": {
                   "Display": "$24"
                },
-               "18": {
+               "11": {
                   "Display": "$25"
                }
             },
@@ -235,13 +251,14 @@ def add_question(apiToken, dataCenter, surveyId):
                1,
                2,
                3,
-               "11",
-               "13",
-               "14",
-               "15",
-               "16",
-               "17",
-               "18"
+               4,
+               5,
+               6,
+               7,
+               8,
+               9,
+               10,
+               11
             ],
             "Validation": {
                "Settings": {
@@ -251,14 +268,10 @@ def add_question(apiToken, dataCenter, surveyId):
                }
             },
             "Language": [],
-            "NextChoiceId": 19,
+            "NextChoiceId": 12,
             "NextAnswerId": 1,
-            "QuestionID": "QID1",
-            "DataVisibility": {
-               "Private": False,
-               "Hidden": False
-            },
-            "QuestionText_Unsafe": "<span style=\"color: rgb(0, 0, 0); font-family: docs-Calibri; font-size: 16px; white-space: pre-wrap;\">Hourly Wage:</span>"
+            "QuestionID": "QID2",
+            "QuestionText_Unsafe": "Hourly Wage:"
          }
 
 	headers = {
@@ -268,10 +281,10 @@ def add_question(apiToken, dataCenter, surveyId):
 	}
 
 	response = requests.post(baseUrl, json=data, headers=headers)
+	values = json.loads(response.text)
+	return values['result']['QuestionID']
 
-	print(response.text)
-
-def publish_survey(apiToken, dataCenter, surveyId):
+def publish_survey(dataCenter, apiToken, surveyId):
 	surveyId = "SV_5jyf8FFOv7qK0Qt"
 	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions/{1}/versions"\
 														.format(dataCenter, surveyId)
@@ -289,41 +302,211 @@ def publish_survey(apiToken, dataCenter, surveyId):
 
 	response = requests.post(baseUrl, json=data, headers=headers)
 
-	print(response.text)
+	values = json.loads(response.text)
+	print(values)
+	return values['result']['metadata']['surveyID']
 
-def upload_image(dataCenter, apiToken, image_dir):
+
+def delete_images(dataCenter, apiToken, image_id):
+	baseUrl = "https://{0}.qualtrics.com/API/v3/libraries/UR_2oCfkV4WwzhNcih/graphics/{1}".format(dataCenter, image_id)
+	headers = {
+	"x-api-token":apiToken
+	}
+	response = requests.delete(baseUrl, headers = headers)
+	print(response)
+
+def upload_image(dataCenter, apiToken, image_dir, description):
 
 	baseUrl = "https://{0}.qualtrics.com/API/v3/libraries/UR_2oCfkV4WwzhNcih/graphics".format(dataCenter)
-	data = {'file': ('Testing', open(image_dir,'rb'), 'image/jpeg')}
- 
+	file = {'file': (description, open(image_dir,'rb'), 'image/jpeg')}
 	headers = {
-	"x-api-token": apiToken}
+	"x-api-token": apiToken
+	}
 
-	response = requests.post(baseUrl, headers=headers, files=data)
+	response = requests.post(baseUrl, headers=headers, files=file)
+	print(response.text)
 	values = json.loads(response.text)
 	return values['result']['id']
 
-def upload_all_images(dataCenter, apiToken):
+def upload_all_images(dataCenter, apiToken, service):
 	data = [['Image Folder', 'Image ID']]
 	for f in os.listdir('Images'):
 		images = os.listdir('Images/' + f)
 		image_dir = 'Images/' + f + '/' + str(images[0])
-		image_id = upload_image(dataCenter, apiToken, image_dir)
+		image_id = upload_image(dataCenter, apiToken, image_dir, f)
 		data.append([f, image_id])
-	write_to_spreadsheet(data)
+	write_to_spreadsheet(data, service)
+
+def create_block(dataCenter, apiToken, surveyId):
+
+	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions/{1}/blocks"\
+														.format(dataCenter, surveyId)
+	data = {"Type": "Standard",
+	"Description": "My Block Name",
+	"Options": {
+	"BlockLocking": "false",
+	"RandomizeQuestions": "false",
+	"BlockVisibility": "Collapsed"}
+	}
+
+	headers = {
+	   'accept': "application/json",
+	   'content-type': "application/json",
+	   "x-api-token": apiToken,
+	}
+
+	response = requests.post(baseUrl, json = data, headers = headers)
+	values = json.loads(response.text)
+	return values['result']['BlockID'], values['result']['FlowID']
+
+def update_block(dataCenter, apiToken, surveyId, blockId, questionIds):
+	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions/{1}/blocks/{2}"\
+														.format(dataCenter, surveyId, blockId)
+	questions = []
+	for question in questionIds:
+		questions.append(
+			{"Type": "Question",
+			"QuestionID" : question})
+	data = {"Type": "Standard",
+			"Description": "My Block Name",
+			"BlockElements": questions,
+			"Options": {
+			"BlockLocking": "false",
+			"RandomizeQuestions": "false",
+			"BlockVisibility": "Collapsed"
+			}
+			}
+
+	headers = {
+	   'accept': "application/json",
+	   'content-type': "application/json",
+	   "x-api-token": apiToken,
+	}
+
+	response = requests.put(baseUrl, json = data, headers = headers)
+
+def delete_block(dataCenter, apiToken, surveyId, blockId):
+	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions/{1}/blocks/{2}"\
+										.format(dataCenter, surveyId, blockId)
+	
+	headers = {
+	   "x-api-token": apiToken
+	}
+
+	response = requests.delete(baseUrl, headers = headers)
+	print(response.text)
 
 
+def update_flow(dataCenter, apiToken, surveyId, flows, blocks, defaultId):
+	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions/{1}/flow".format(dataCenter, surveyId)
+	temp = []
+	for flow, block in zip(flows, blocks):
+		temp.append({
+			"ID" : block,
+			"Type" : "Block",
+			"FlowID" : flow
+			})
+
+	# temp.append({
+	# 	"Type": "EndSurvey",
+ #         "FlowID": "FL_7"
+	# 	})
+
+	# temp.append({
+	# 	"Type": "Block",
+ #               "ID": defaultId,
+ #               "FlowID": "FL_2"
+	# 	})
+
+	data = {"Flow" : temp,
+	"FlowID": "FL_1",
+    "Properties": {
+        "Count": 2,
+        "RemovedFieldsets": []
+    },
+    "Type": "Root"}
+
+	headers = {
+	   'accept': "application/json",
+	   'content-type': "application/json",
+	   "x-api-token": apiToken,
+	}
+
+	response = requests.put(baseUrl, json = data, headers = headers)
+	values = json.loads(response.text)
+	print(values)
 
 if __name__ == '__main__':
-	upload_all_images(dataCenter, apiToken)
-	survey_creation(dataCenter, apiToken)
-	update_survey(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
-	add_question(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
-	add_image(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
-	add_question(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
-	publish_survey(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
-	activate_survey(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
-	#get_survey_def(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
+	"""Shows basic usage of the Sheets API.
+	Prints values from a sample spreadsheet.
+	"""
+	creds = None
+	# The file token.pickle stores the user's access and refresh tokens, and is
+	# created automatically when the authorization flow completes for the first
+	# time.
+	if os.path.exists('token.pickle'):
+		with open('token.pickle', 'rb') as token:
+			creds = pickle.load(token)
+	# If there are no (valid) credentials available, let the user log in.
+	if not creds or not creds.valid:
+		if creds and creds.expired and creds.refresh_token:
+			creds.refresh(Request())
+		else:
+			flow = InstalledAppFlow.from_client_secrets_file('credentials_web.json', SCOPES)
+			creds = flow.run_local_server()
+			# Save the credentials for the next run
+		with open('token.pickle', 'wb') as token:
+			pickle.dump(creds, token)
+
+
+	service = build('sheets', 'v4', credentials=creds)
+	#Only needed when need to upload all of the images onto Qualtrics
+	#upload_all_images(dataCenter, apiToken, service)
+
+	images, questions = read_item_spreadsheet(service)
+	imageToId = read_image_spreadsheet(service)
+	##Create survey
+	defaultBlock, surveyId = survey_creation(dataCenter, apiToken)
+	format_survey(apiToken, dataCenter, surveyId)
+
+	counter = 0 
+	flows = []
+	blocks = []
+	for i in range(len(images)):
+		value = images[i]
+		question = questions[i][0]
+		folder = value[0]
+		questionIDs = [] 
+		if folder in imageToId:
+			print("creating block")
+			blockID, flowID = create_block(dataCenter, apiToken, surveyId)
+			flows.append(flowID)
+			blocks.append(blockID)
+			print("adding image")
+			ID = add_image(apiToken, dataCenter, surveyId, imageToId[folder])
+			questionIDs.append(ID)
+			print("adding question")
+			ID = add_question(apiToken, dataCenter, surveyId)
+			questionIDs.append(ID)
+			print("updating block")
+			update_block(dataCenter, apiToken, surveyId, blockID, questionIDs)
+			counter += 1
+		if counter == 4:
+			break
+
+	update_flow(dataCenter, apiToken, surveyId, flows, blocks, defaultBlock)
+	publish_survey(dataCenter, apiToken, surveyId)
+
+
+
+	# survey_creation(dataCenter, apiToken)
+	# add_image(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
+	# add_question(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
+	# publish_survey(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
+	# activate_survey(apiToken, dataCenter, 'SV_em75DIWx0q4Ze4d')
+	# surveyId = 'SV_5BJtHuACxYZaEwR'
+	print(surveyId)
+	get_survey_def(apiToken, dataCenter, surveyId)
 
 
 
