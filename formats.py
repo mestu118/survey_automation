@@ -14,7 +14,62 @@ def getPostHeaders():
    }
    return headers
 
-def getQuestionFormat():
+def getLikelihoodQuestionFormat():
+   FORMAT =  {
+                "ChoiceOrder": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                ],
+                "Choices": {
+                    "1": {
+                        "Display": "Extremely likely"
+                    },
+                    "2": {
+                        "Display": "Somewhat likely"
+                    },
+                    "3": {
+                        "Display": "Neither likely nor unlikely"
+                    },
+                    "4": {
+                        "Display": "Somewhat unlikely"
+                    },
+                    "5": {
+                        "Display": "Extremely unlikely"
+                    }
+                },
+                "Configuration": {
+                    "LabelPosition": "BELOW",
+                    "QuestionDescriptionOption": "UseText"
+                },
+                "DataExportTag": "Q4",
+                "DataVisibility": {
+                    "Hidden": False,
+                    "Private": False
+                },
+                "Language": [],
+                "NextAnswerId": 1,
+                "NextChoiceId": 6,
+                "QuestionDescription": "How likely are you to hire the following candidate?",
+                "QuestionID": "QID4",
+                "QuestionText": "How likely are you to hire the following candidate?",
+                "QuestionText_Unsafe": "How likely are you to hire the following candidate?",
+                "QuestionType": "MC",
+                "Selector": "SAHR",
+                "SubSelector": "TX",
+                "Validation": {
+                    "Settings": {
+                        "ForceResponse": "OFF",
+                        "ForceResponseType": "ON",
+                        "Type": "None"
+                    }
+                  }
+               }
+   return FORMAT
+
+def getScaleQuestionFormat():
    FORMAT = {
       "QuestionText": "Hourly Wage:",
             "DataExportTag": "Q2",
@@ -89,9 +144,20 @@ def getQuestionFormat():
          }
    return FORMAT
 
-def getImageFormat(image_id):
+def getImageFormat(image_id, version):
+   versions = {1 : "You are hiring an Apple specialist for a temporary position.\n \
+                     What hourly wage will you offer the following candidate?",
+               2 : "You are hiring an Apple specialist for a permanent (long-term) position.\n \
+                   What hourly wage will you offer the following candidate?",
+               3 : "You are hiring an Apple specialist for a position beginning today.\n \
+                  What hourly wage will you offer the following candidate?", 
+               4 : "You are hiring an Apple specialist for a position beginning in three months.\n \
+                  What hourly wage will you offer the following candidate?", 
+               5 : "You are assiting the Apple store manager to hire an Apple specialist.\n \
+                  What hourly wage will you recommend the manager to offer the following candidate?" 
+               }
    FORMAT = {
-            "QuestionText": "<span style=\"font-size: 12pt; font-family: Calibri, Arial; color: rgb(0, 0, 0);\" data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;You are hiring an Apple specialist for a temporary position.\\nWhat hourly wage will you offer the following candidate?&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:14593,&quot;3&quot;:{&quot;1&quot;:0,&quot;3&quot;:1},&quot;11&quot;:4,&quot;14&quot;:[null,2,0],&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:12}\">You are hiring an Apple specialist for a temporary position.<br>What hourly wage will you offer the following candidate?</span>",
+            "QuestionText": "{0}".format(versions[int(version)]),
             "DefaultChoices": False,
             "DataExportTag": "Q1",
             "QuestionID": "QID1",
@@ -101,7 +167,7 @@ def getImageFormat(image_id):
             "Configuration": {
                "QuestionDescriptionOption": "UseText"
             },
-            "QuestionDescription": "You are hiring an Apple specialist for a temporary position. What hourly wage will you offer the...",
+            "QuestionDescription": "{0}".format(versions[int(version)]),
             "ChoiceOrder": [],
             "Validation": {
                "Settings": {
@@ -114,7 +180,7 @@ def getImageFormat(image_id):
             "NextAnswerId": 1,
             "Graphics": image_id,
             "GraphicsDescription": "AF-201",
-            "QuestionText_Unsafe": "<span style=\"font-size: 12pt; font-family: Calibri, Arial; color: rgb(0, 0, 0);\" data-sheets-value=\"{&quot;1&quot;:2,&quot;2&quot;:&quot;You are hiring an Apple specialist for a temporary position.\\nWhat hourly wage will you offer the following candidate?&quot;}\" data-sheets-userformat=\"{&quot;2&quot;:14593,&quot;3&quot;:{&quot;1&quot;:0,&quot;3&quot;:1},&quot;11&quot;:4,&quot;14&quot;:[null,2,0],&quot;15&quot;:&quot;Calibri&quot;,&quot;16&quot;:12}\">You are hiring an Apple specialist for a temporary position.<br>What hourly wage will you offer the following candidate?</span>"
+            "QuestionText_Unsafe": "{0}".format(versions[int(version)])
          } 
    return FORMAT
 

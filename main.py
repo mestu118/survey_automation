@@ -25,7 +25,8 @@ def get_survey_def(APITOKEN, DATACENTER, surveyId):
 	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions/{1}"\
 												.format(DATACENTER, surveyId)
 	response = requests.get(baseUrl, headers=getGetHeaders())
-	getValues(reponse)
+	values = getValues(response)
+	print(json.dumps(values, indent=4, sort_keys=True))
 
 def survey_creation(DATACENTER, APITOKEN):
 	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions"\
@@ -61,23 +62,27 @@ def activate_survey(APITOKEN, DATACENTER, surveyId):
 	response = requests.put(baseUrl, json=data, headers=getPostHeaders())
 	getValues(response)
 
-def add_image(APITOKEN, DATACENTER, surveyId, image_id):
+def add_image(APITOKEN, DATACENTER, surveyId, image_id, question):
 
 	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions/{1}/questions"\
 	.format(DATACENTER, surveyId)
 	
-	data = getImageFormat(image_id)
+	data = getImageFormat(image_id, question)
 	response = requests.post(baseUrl, json=data, headers=getPostHeaders())
 	values = getValues(response)
 	return values['result']['QuestionID']
 
-def add_question(APITOKEN, DATACENTER, surveyId):
+def add_question(APITOKEN, DATACENTER, surveyId, questionType):
 
 	baseUrl = "https://{0}.qualtrics.com/API/v3/survey-definitions/{1}/questions"\
 	.format(DATACENTER, surveyId)
-	
-	data = getQuestionFormat()
 
+	data = None
+	if questionType == 1:
+		data = getScaleQuestionFormat()
+	elif questionType == 2:
+		data = getLikelihoodQuestionFormat()
+	
 	response = requests.post(baseUrl, json=data, headers=getPostHeaders())
 	values = getValues(response)
 	return values['result']['QuestionID']
@@ -240,21 +245,22 @@ if __name__ == '__main__':
 			flows.append(flowID)
 			blocks.append(blockID)
 			print("adding image")
-			ID = add_image(APITOKEN, DATACENTER, surveyId, imageToId[folder])
+			ID = add_image(APITOKEN, DATACENTER, surveyId, imageToId[folder], question)
 			questionIDs.append(ID)
 			print("adding question")
-			ID = add_question(APITOKEN, DATACENTER, surveyId)
+			ID = add_question(APITOKEN, DATACENTER, surveyId, 1)
 			questionIDs.append(ID)
 			print("updating block")
 			update_block(DATACENTER, APITOKEN, surveyId, blockID, questionIDs)
 			counter += 1
-		if counter == 3:
+		if counter == 30:
 			break
 
 	update_flow(DATACENTER, APITOKEN, surveyId, flows, blocks, defaultBlock)
 	publish_survey(DATACENTER, APITOKEN, surveyId)
 	activate_survey(APITOKEN, DATACENTER, surveyId)
 	print("https://nyu.qualtrics.com/jfe/form/{}".format(surveyId))
+
 	# print(surveyId)
 	# get_survey_def(apiToken, DATACENTER, surveyId)
 

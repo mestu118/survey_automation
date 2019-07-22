@@ -1,4 +1,4 @@
-# survey_automation
+# Survey Automation
 Survey Automation using Qualtrics API
 
 # Requirements
