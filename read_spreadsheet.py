@@ -1,7 +1,6 @@
 # The ID and range of a sample spreadsheet.
-SPREADSHEET_ID = '1Vk317VsGxixvB6Eff4mY6_1z8bXIKeqlLVAEnTbnpfM'
 
-def read_image_spreadsheet(service, RANGE_NAME = 'images'):
+def read_image_spreadsheet(service,  SPREADSHEET_ID, RANGE_NAME = 'images'):
 
     # Call the Sheets API
     sheet = service.spreadsheets()
@@ -17,7 +16,7 @@ def read_image_spreadsheet(service, RANGE_NAME = 'images'):
             retVal[row[0]] = row[1]
         return retVal
 
-def read_item_spreadsheet(service, RANGE_NAME = 'item assignment!B2:B'):
+def read_item_spreadsheet(service, SPREADSHEET_ID, RANGE_NAME = 'item assignment!B2:B'):
     sheet = service.spreadsheets()
     range_names = [
         'item assignment!B2:B',

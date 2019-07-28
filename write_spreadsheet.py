@@ -1,8 +1,7 @@
 # The ID and range of a sample spreadsheet.
-SPREADSHEET_ID = '1Vk317VsGxixvB6Eff4mY6_1z8bXIKeqlLVAEnTbnpfM'
 RANGE_NAME = 'images'
 
-def write_to_spreadsheet(values, service):
+def write_to_spreadsheet(values, service, SPREADSHEET_ID):
     body = {
         'values':values
     }

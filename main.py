@@ -122,10 +122,15 @@ def upload_all_images(DATACENTER, APITOKEN, service):
 	data = [['Image Folder', 'Image ID']]
 	for f in os.listdir('Images'):
 		images = os.listdir('Images/' + f)
-		image_dir = 'Images/' + f + '/' + str(images[0])
-		image_id = upload_image(DATACENTER, APITOKEN, image_dir, f)
-		data.append([f, image_id])
-	write_to_spreadsheet(data, service)
+		for image in images:
+			if f == '.DS_Store' or images == '.DS_Store':
+				continue
+			image_dir = 'Images/' + f + '/' + str(images[0])
+			image_id = upload_image(DATACENTER, APITOKEN, image_dir, f)
+			data.append([f, image_id])
+			break
+	print(data)
+	write_to_spreadsheet(data, service, SPREADSHEET_ID)
 
 def create_block(DATACENTER, APITOKEN, surveyId):
 
@@ -223,46 +228,45 @@ if __name__ == '__main__':
 
 	service = build('sheets', 'v4', credentials=creds)
 	#Only needed when need to upload all of the images onto Qualtrics
-	#upload_all_images(DATACENTER, APITOKEN, service)
+	if len(sys.argv) == 2:
+		upload_all_images(DATACENTER, APITOKEN, service)
+	else:
+		images, questions = read_item_spreadsheet(service, SPREADSHEET_ID)
+		imageToId = read_image_spreadsheet(service, SPREADSHEET_ID)
+		
+		##Create survey
+		defaultBlock, surveyId = survey_creation(DATACENTER, APITOKEN)
+		format_survey(APITOKEN, DATACENTER, surveyId)
 
-	images, questions = read_item_spreadsheet(service)
-	imageToId = read_image_spreadsheet(service)
-	##Create survey
-	defaultBlock, surveyId = survey_creation(DATACENTER, APITOKEN)
-	format_survey(APITOKEN, DATACENTER, surveyId)
+		counter = 0 
+		flows = []
+		blocks = []
+		for i in range(len(images)):
+			value = images[i]
+			question = questions[i][0]
+			folder = value[0]
+			questionIDs = [] 
+			if folder in imageToId:
+				print("creating block")
+				blockID, flowID = create_block(DATACENTER, APITOKEN, surveyId)
+				flows.append(flowID)
+				blocks.append(blockID)
+				print("adding image")
+				ID = add_image(APITOKEN, DATACENTER, surveyId, imageToId[folder], question)
+				questionIDs.append(ID)
+				print("adding question")
+				ID = add_question(APITOKEN, DATACENTER, surveyId, 1)
+				questionIDs.append(ID)
+				print("updating block")
+				update_block(DATACENTER, APITOKEN, surveyId, blockID, questionIDs)
 
-	counter = 0 
-	flows = []
-	blocks = []
-	for i in range(len(images)):
-		value = images[i]
-		question = questions[i][0]
-		folder = value[0]
-		questionIDs = [] 
-		if folder in imageToId:
-			print("creating block")
-			blockID, flowID = create_block(DATACENTER, APITOKEN, surveyId)
-			flows.append(flowID)
-			blocks.append(blockID)
-			print("adding image")
-			ID = add_image(APITOKEN, DATACENTER, surveyId, imageToId[folder], question)
-			questionIDs.append(ID)
-			print("adding question")
-			ID = add_question(APITOKEN, DATACENTER, surveyId, 1)
-			questionIDs.append(ID)
-			print("updating block")
-			update_block(DATACENTER, APITOKEN, surveyId, blockID, questionIDs)
-			counter += 1
-		if counter == 30:
-			break
+		update_flow(DATACENTER, APITOKEN, surveyId, flows, blocks, defaultBlock)
+		publish_survey(DATACENTER, APITOKEN, surveyId)
+		activate_survey(APITOKEN, DATACENTER, surveyId)
+		print("https://nyu.qualtrics.com/jfe/form/{}".format(surveyId))
 
-	update_flow(DATACENTER, APITOKEN, surveyId, flows, blocks, defaultBlock)
-	publish_survey(DATACENTER, APITOKEN, surveyId)
-	activate_survey(APITOKEN, DATACENTER, surveyId)
-	print("https://nyu.qualtrics.com/jfe/form/{}".format(surveyId))
-
-	# print(surveyId)
-	# get_survey_def(apiToken, DATACENTER, surveyId)
+		# print(surveyId)
+		# get_survey_def(apiToken, DATACENTER, surveyId)
 
 
 
