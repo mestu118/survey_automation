@@ -4,6 +4,10 @@ Survey Automation using Qualtrics API
 # Requirements
 
 ## Download/Clone repository
+Would prefer you clone the repository, in case there are any changes in the code. 
+
+`git clone https://github.com/mestu118/survey_automation.git`
+
 ## Create Virtual Environment and install dependencies
 * Inside repository create environment (e.g. `python -m venv env`)
 * Activate environment (e.g. `source env/bin/activate`)
