@@ -1,5 +1,6 @@
 # Survey Automation
-Survey Automation using Qualtrics API
+Survey Automation using Qualtrics API and Google Sheets API. 
+Using Google Sheet with corresponding questions and images will automate the survey creation process. 
 
 # Requirements
 
