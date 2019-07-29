@@ -7,11 +7,11 @@ Survey Automation using Qualtrics API
 ## Create Virtual Environment and install dependencies
 * Inside repository create environment (e.g. `python -m venv env`)
 * Activate environment (e.g. `source env/bin/activate`)
-* Install dependencies (e.g. `pip install -r req.txt`)
+* Install dependencies (e.g. `pip install -r req.txt`) Note: Only need to do this step once. 
 
 ## Download Image from DropBox repository
 * Place inside folder and rename folder 'Images'
-* Run `python image_resize.py height(default = 400) width (default = 340_` (will resize all images to corresponding height and width)
+* Run `python image_resize.py height(default = 400) width (default = 340)` (will resize all images to corresponding height and width)
 
 
 ## Creating the appropriate credentials 
@@ -24,13 +24,13 @@ Survey Automation using Qualtrics API
 
 ## Enabling Googl Sheets API
 * Under APIs & Services select 'Enable APIs and Services'
-* Search for 'Google Sheets APIs' and enable
+* Search for 'Google Sheets APIs' and Enable
 
 ## API Key & Datacenter
 * Data Center
-Once in your account the data center will be the pre-fix of the link (e.g. https://nyu.ca1.qualtrics.com/ControlPanel/ 'nyu.ca1' is the datacenter)
+Once in your Qualtrics account the data center will be the pre-fix of the link (e.g. https://nyu.ca1.qualtrics.com/ControlPanel/ 'nyu.ca1' is the datacenter)
 * API Key
-Under the Account Settings go to Qualtrics IDs. Under API, either generate token or copy the Token. 
+Under Account Settings go to Qualtrics IDs. Under API, either generate token or copy the Token. 
 * Set the appropriate values in credentials.py
 
 ## Spreadsheet ID
@@ -38,12 +38,12 @@ Under the Account Settings go to Qualtrics IDs. Under API, either generate token
 * Obtain the sheet ID
 Can do this by opening the sheet and obtaining the ID from the browser link. For example:
 https://docs.google.com/spreadsheets/d/1234ABC/edit
-Spreadsheet ID = 123ABC
-* Add a sheet named 'images' in the 'Hire Salary' spreadsheet
-* Set the appropriate value in credentials.py
+Spreadsheet ID = 123ABC 
+* Add a sheet named 'images' in the 'Hire Salary' spreadsheet (this is where the image ids will be stored)
+* Set the appropriate value in credentials.py 
 
 ## Uploading all images to Qualtrics
-* Run `python main.py upload`
+* Run `python main.py upload` 
 * If the web browser prompts you, select the account where the 'Hire Salary' sheet is located and Allow. 
 
 
